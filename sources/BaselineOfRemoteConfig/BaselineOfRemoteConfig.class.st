@@ -8,21 +8,21 @@ Class {
 BaselineOfRemoteConfig >> baseline: spec [
 	<baseline>
 	spec
-		for: #pharo
+		for: #common
 		do:
 			[ 
 			spec baseline: 'ZincHTTPComponents' with: [
 						spec
-							loads: #('core');
+							loads: #('REST');
 							repository: 'github://zweidenker/zinc/repository' ].
 				spec baseline: 'OpenAPI' with: [
 						spec
-							loads: #('core');
+							loads: #('REST');
 							repository: 'github://zweidenker/OpenAPI/source' ];
 					project: 'OpenAPI-Core' copyFrom: 'OpenAPI' with: [ 
 						 spec loads: 'Core'].
 			
-			spec package: 'RemoteConfig'.
+			spec package: 'RemoteConfig' with:[spec requires: #('ZincHTTPComponents' 'OpenAPI-Core')].
 			spec package: 'RemoteConfig-Tests' with:[spec requires: #('core')].
 
 			spec
