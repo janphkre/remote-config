@@ -9,7 +9,7 @@ Class {
 
 { #category : #accessing }
 RCConfigCall class >> description [ 
-	^ 'Return the configuration for a specific identifier. The configuration is a json.'
+	^ 'A configuration is identified by a user set string and the accept language header. When creating new configurations a json must be supplied containing all supported languages. The language "default" should be supplied as the default language.'
 ]
 
 { #category : #accessing }
@@ -19,7 +19,7 @@ RCConfigCall class >> function [
 
 { #category : #accessing }
 RCConfigCall class >> httpMethods [
-	^ #( post )
+	^ #( get post )
 ]
 
 { #category : #accessing }
@@ -33,9 +33,9 @@ RCConfigCall class >> parameterConfigId [
 		description: 'The identifier of the configuration being requested.'
 ]
 
-{ #category : #'accessing-testing' }
-RCConfigCall >> configId: aString. [
-  configId := aString.
+{ #category : #accessing }
+RCConfigCall class >> summary [ 
+	^ 'Resource for getting and setting configurations as a json.'
 ]
 
 { #category : #public }
@@ -46,8 +46,20 @@ RCConfigCall >> get [
 	].
 	acceptLanguages := ($, split: (request headers at: 'Accept-Language' ifAbsent: 'en'))
 	  collect: [ :item | ($- split: item) first].
-  data := ConfigStore instanceFromIdentifier: configId languages: acceptLanguages.
+  data := ConfigStore configFromIdentifier: configId languages: acceptLanguages.
 	response := ZnResponse  ok: (ZnEntity 
     with: data
+    type: ZnMimeType applicationJson setCharSetUTF8).
+]
+
+{ #category : #public }
+RCConfigCall >> post [
+	| data |
+	data := self jsonRequest.
+	(data includesKey: 'default') ifFalse: [ JSONError signal: 'Missing default configuration.'].
+	
+	ConfigStore addConfigurationsFor: configId data: data.
+	response := ZnResponse ok: (ZnEntity 
+    with: '{}'
     type: ZnMimeType applicationJson setCharSetUTF8).
 ]

@@ -14,7 +14,7 @@ RemoteConfigServer >> start: port [
 	RemoteConfigApi version: 'v1'.
 	serverDelegate := RemoteConfigApi delegate.
 	
-	server := ZnSingleThreadedServer startDefaultOn: port.
+	server := ZnMultiThreadedServer startDefaultOn: port.
 	server debugMode: true.
 	server delegate: serverDelegate.
 ]

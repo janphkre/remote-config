@@ -85,8 +85,7 @@ RCCall class >> pathItem [
 			summary: self summary;
 			description: self description;
 			parameters: (self parametersForMethod: method);
-			requestBody: (self requestBodyForMethod: method);
-			responses: (self responsesForMethod: method)  ].
+			requestBody: (self requestBodyForMethod: method) ].
 	^ item
 
 ]
@@ -163,9 +162,8 @@ RCCall >> errorEntityFor: anRCError [
 ]
 
 { #category : #private }
-RCCall >> errorResponseFor: anError [
-  (anError class = KeyNotFound) ifTrue: [ ^ ZnResponse statusLine: ZnStatusLine notFound ].
-	^ ZnResponse statusLine: ZnStatusLine internalServerError.
+RCCall >> errorResponseFor: aRCError [
+	^ ZnResponse statusLine: (ZnStatusLine code: (aRCError code)).
 ]
 
 { #category : #accessing }
@@ -184,18 +182,30 @@ RCCall >> execute [
 
 { #category : #accessing }
 RCCall >> handleError: anError [
-	^ (self errorResponseFor: anError) 
-		entity: (self errorEntityFor: (RCError instanceFromError: anError))
+ | mappedError |
+	mappedError := (RCError instanceFromError: anError).
+	^ (self errorResponseFor: mappedError) 
+		entity: (self errorEntityFor: mappedError)
 		yourself
 ]
 
 { #category : #initialization }
 RCCall >> initializeParameters [
 	| operation |
+	self flag: 'TODO: MAKE THIS MORE EFFICIENT: PARAMETER LOAD SHOULD NOT REQUIRE OPEANAPI INFLATION'.
 	operation := self class operationForMethod: request method asLowercase.
 	operation 
 		initializeValuesOn: self
 		fromRequest: self
+]
+
+{ #category : #accessing }
+RCCall >> jsonRequest [
+	^ (self request contentType matches: ZnMimeType applicationJson)
+		ifTrue: [
+			NeoJSONReader fromString: self request contents ]
+		ifFalse: [
+			JSONError signal: 'JSON content expected.' ]
 ]
 
 { #category : #'error handling' }

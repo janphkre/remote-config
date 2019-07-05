@@ -18,6 +18,7 @@ RCError class >> instanceFromError: anError [
   self flag: 'TODO Find way to log / monitor errors'.
   anError inspect.
   anError class = KeyNotFound ifTrue: [ ^  self instanceFromCode: 404 message: 'The requested object was not found.' ].
+  anError class = JSONError ifTrue: [ ^ self instanceFromCode: 400 message: (anError messageText) ].
   ^ self instanceFromCode: 500 message: 'An unknown error occured.'
 ]
 
