@@ -12,19 +12,31 @@ RCCall class >> description [
 	^ ''
 ]
 
+{ #category : #public }
+RCCall class >> forRequest: request [
+	| callPath requestPath parameters |
+	requestPath := $/ split: request uri path.
+	callPath := $/ split: self path allButFirst.
+	(requestPath size = callPath size) ifFalse: [ 
+		^ nil ].
+	parameters := Dictionary new.
+	requestPath with: callPath do: [ :requestPathSegment : callPathSegment |
+		(callPathSegment first = ${)
+			ifFalse: [ 
+				(callPathSegment  = requestPathSegment )
+					ifFalse: [ ^ nil ] ]
+			ifTrue: [ parameters at: (callPathSegment copyFrom: 2 to: callPathSegment size - 1) put: requestPathSegment ] ].
+	^ self new: parameters.
+]
+
 { #category : #accessing }
 RCCall class >> function [
 	^ self subclassResponsibility 
 ]
 
 { #category : #accessing }
-RCCall class >> httpMethods [
-	^ #( get )
-]
-
-{ #category : #public }
 RCCall class >> implementedMethods [
-	^ self httpMethods select: [ :method | self includesSelector: method asSymbol ]
+	^ self usedHttpVerbs select: [ :method | self includesSelector: method asSymbol ]
 ]
 
 { #category : #testing }
@@ -32,19 +44,13 @@ RCCall class >> isAbstract [
  ^ self = RCCall
 ]
 
-{ #category : #public }
-RCCall class >> match: request [
-	| callPath requestPath |
-	requestPath := $/ split: request uri path.
-	callPath := $/ split: self path allButFirst.
-	(requestPath size = callPath size) ifFalse: [ 
-		^ false ].
-	requestPath with: callPath do: [ :requestPathSegment : callPathSegment |
-		(callPathSegment first = ${)
-			ifFalse: [ 
-				(callPathSegment  = requestPathSegment )
-					ifFalse: [ ^ false ] ] ].
-	^ true
+{ #category : #'instance creation' }
+RCCall class >> new: aDict [
+	| result |
+	result := self new.
+	aDict associations do: [ :pair |
+		result instVarNamed: (pair key) put: (pair value)].
+	^ result.
 ]
 
 { #category : #accessing }
@@ -53,17 +59,22 @@ RCCall class >> objectsForPragmas: aCollection [
 		collect: [:each | each method valueWithReceiver: self arguments: #() ]
 ]
 
+{ #category : #public }
+RCCall class >> openApiPathParameter: aString [
+^ OAParameter new
+		name: aString;
+		in: #path;
+		beString;
+		required: true.
+		
+]
+
 { #category : #accessing }
 RCCall class >> openApiPragmasNamed: aSymbol [
 	^ Pragma 
 		allNamed: aSymbol
 		from: self class 
 		to: RCCall class.
-]
-
-{ #category : #accessing }
-RCCall class >> operationForMethod: aString [ 
-	^ self pathItem perform: aString asSymbol.
 ]
 
 { #category : #accessing }
@@ -98,11 +109,6 @@ RCCall class >> pragmas: pragmaName includingMethod: aSymbol [
 ]
 
 { #category : #accessing }
-RCCall class >> requestBody [
-	^ OARequestBody new
-]
-
-{ #category : #accessing }
 RCCall class >> requestBodyForMethod: aSymbol [
 
 	| body pragmas |
@@ -119,39 +125,14 @@ RCCall class >> requestBodyForMethod: aSymbol [
 	^ body
 ]
 
-{ #category : #public }
-RCCall class >> responseError [
-	<openApiResponse: #(get) status: #(500) contentType: #('application/json')>
-	^ OAMediaTypeObject new
-		schema: (RCError instanceVariables) asJSONSchema.
-]
-
-{ #category : #public }
-RCCall class >> responseOk [
-	<openApiResponse: #(get) status: #(200) contentType: #('application/json')>
-	^ OAMediaTypeObject new
-		schema: { } asJSONSchema.
-]
-
-{ #category : #accessing }
-RCCall class >> responsesForMethod: aSymbol [
-	| body pragmas |
-	pragmas := (self pragmas: #openApiResponse:status:contentType: includingMethod: aSymbol)
-		ifEmpty: [ ^ nil ].
-	
-	body := ZnResponse new.
-	pragmas do: [ :pragma | | mediaObject |
-		pragma arguments second do: [ :statusCode | 
-			body statusLine: (ZnStatusLine code: statusCode) ].
-		mediaObject := pragma method valueWithReceiver: self arguments: #().
-		pragma arguments third do: [ :contentType | 
-			body entity: (ZnEntity with: mediaObject type: contentType) ] ].
-	^ body
-]
-
 { #category : #accessing }
 RCCall class >> summary [
 	^ ''
+]
+
+{ #category : #private }
+RCCall class >> usedHttpVerbs [
+	^ #( #get #post )
 ]
 
 { #category : #private }
@@ -171,8 +152,7 @@ RCCall >> execute [
 	"execution of the api call"
 	^ (self respondsTo: self method)	
 		ifTrue: [ 
-			[ 
-			self initializeParameters.
+			[
 			self perform: self method.
 			response]
 				on: Exception 
@@ -191,12 +171,6 @@ RCCall >> handleError: anError [
 
 { #category : #initialization }
 RCCall >> initializeParameters [
-	| operation |
-	self flag: 'TODO: MAKE THIS MORE EFFICIENT: PARAMETER LOAD SHOULD NOT REQUIRE OPEANAPI INFLATION'.
-	operation := self class operationForMethod: request method asLowercase.
-	operation 
-		initializeValuesOn: self
-		fromRequest: self
 ]
 
 { #category : #accessing }

@@ -8,7 +8,7 @@ Class {
 RCUriSpace >> match: request [
 	(RCCall allSubclasses reject: #isAbstract)
 		do: [ :callClass |
-			(callClass match: request) ifTrue: [ 
-				^ callClass new ] ].
+			(callClass forRequest: request) ifNotNil: [ :item |
+				^ item ] ].
 	^ nil
 ]

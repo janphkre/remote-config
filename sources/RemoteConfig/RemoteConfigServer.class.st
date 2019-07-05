@@ -1,6 +1,6 @@
 Class {
 	#name : #RemoteConfigServer,
-	#superclass : #OpenAPI,
+	#superclass : #Object,
 	#instVars : [
 		'serverDelegate',
 		'server'
@@ -14,7 +14,7 @@ RemoteConfigServer >> start: port [
 	RemoteConfigApi version: 'v1'.
 	serverDelegate := RemoteConfigApi delegate.
 	
-	server := ZnMultiThreadedServer startDefaultOn: port.
+	server := ZnMultiThreadedServer  startDefaultOn: port.
 	server debugMode: true.
 	server delegate: serverDelegate.
 ]
