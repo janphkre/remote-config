@@ -11,6 +11,7 @@ Class {
 { #category : #accessing }
 RemoteConfigServer >> start: port [
 	
+	RemoteConfigApi version: 'v1'.
 	serverDelegate := RemoteConfigApi delegate.
 	
 	server := ZnSingleThreadedServer startDefaultOn: port.

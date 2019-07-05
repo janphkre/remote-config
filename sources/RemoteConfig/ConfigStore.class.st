@@ -19,7 +19,7 @@ ConfigStore class >> instanceFromIdentifier: anIdentifier languages: languageIde
 		result := configurations at: anIdentifier at: language ifAbsent: nil.
 		result ifNotNil: [ ^ result ].
 	].
-	^ configurations at: anIdentifier at: #en.
+	^ configurations at: anIdentifier at: 'en'.
 ]
 
 { #category : #'system startup' }
@@ -36,7 +36,7 @@ ConfigStore class >> startUp: isImageStarting [
 	  select: [ :each | each basename endsWith: '.json' ]
 		thenDo: [ :configFile |
 			(((NeoJSONReader on: (configFile readStream))) parseMap) associations do: [ :pair |
-				configurations at: configFile base asSymbol at: (pair key) put:
+				configurations at: configFile base at: (pair key) put:
 				  (NeoJSONWriter toString: (pair value)) ].
 			].
 ]

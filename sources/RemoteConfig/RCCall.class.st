@@ -1,13 +1,11 @@
 Class {
 	#name : #RCCall,
 	#superclass : #ZnRestCall,
+	#classInstVars : [
+		'basePath'
+	],
 	#category : #RemoteConfig
 }
-
-{ #category : #accessing }
-RCCall class >> basePath [
-	^ '/api/', self version
-]
 
 { #category : #accessing }
 RCCall class >> description [
@@ -75,7 +73,7 @@ RCCall class >> parametersForMethod: aSymbol [
 
 { #category : #accessing }
 RCCall class >> path [ 
-	^ self basePath, self function 
+	^ (RemoteConfigApi basePath), self function 
 ]
 
 { #category : #accessing }
@@ -87,7 +85,8 @@ RCCall class >> pathItem [
 			summary: self summary;
 			description: self description;
 			parameters: (self parametersForMethod: method);
-			requestBody: (self requestBodyForMethod: method ) ].
+			requestBody: (self requestBodyForMethod: method);
+			responses: (self responsesForMethod: method)  ].
 	^ item
 
 ]
@@ -111,7 +110,7 @@ RCCall class >> requestBodyForMethod: aSymbol [
 	pragmas := (self pragmas: #openApiRequestBody:contentType: includingMethod: aSymbol)
 		ifEmpty: [ ^ nil ].
 	
-	body := self requestBody.
+	body := OARequestBody new.
 	pragmas do: [ :pragma | | mediaObject |
 		mediaObject := pragma method valueWithReceiver: self arguments: #().
 		pragma arguments second do: [ :contentType | 
@@ -136,13 +135,24 @@ RCCall class >> responseOk [
 ]
 
 { #category : #accessing }
-RCCall class >> summary [
-	^ ''
+RCCall class >> responsesForMethod: aSymbol [
+	| body pragmas |
+	pragmas := (self pragmas: #openApiResponse:status:contentType: includingMethod: aSymbol)
+		ifEmpty: [ ^ nil ].
+	
+	body := ZnResponse new.
+	pragmas do: [ :pragma | | mediaObject |
+		pragma arguments second do: [ :statusCode | 
+			body statusLine: (ZnStatusLine code: statusCode) ].
+		mediaObject := pragma method valueWithReceiver: self arguments: #().
+		pragma arguments third do: [ :contentType | 
+			body entity: (ZnEntity with: mediaObject type: contentType) ] ].
+	^ body
 ]
 
-{ #category : #versions }
-RCCall class >> version [
-	^ 'v1'
+{ #category : #accessing }
+RCCall class >> summary [
+	^ ''
 ]
 
 { #category : #private }
@@ -169,7 +179,7 @@ RCCall >> execute [
 			response]
 				on: Exception 
 				do: [ :err | self handleError: err ] ] 
-		ifFalse: [ self wrongMethod: request ]  
+		ifFalse: [ self wrongMethod: request ]
 ]
 
 { #category : #accessing }

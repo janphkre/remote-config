@@ -18,6 +18,11 @@ RCConfigCall class >> function [
 ]
 
 { #category : #accessing }
+RCConfigCall class >> httpMethods [
+	^ #( post )
+]
+
+{ #category : #accessing }
 RCConfigCall class >> parameterConfigId [
 	<openApiParameter: #( common )>
 	^ OAParameter new
@@ -40,10 +45,9 @@ RCConfigCall >> get [
 		KeyNotFound signal.
 	].
 	acceptLanguages := ($, split: (request headers at: 'Accept-Language' ifAbsent: 'en'))
-	  collect: [ :item | ($- split: item) first asSymbol].
-  data := ConfigStore instanceFromIdentifier: (configId asSymbol) languages: acceptLanguages.
+	  collect: [ :item | ($- split: item) first].
+  data := ConfigStore instanceFromIdentifier: configId languages: acceptLanguages.
 	response := ZnResponse  ok: (ZnEntity 
     with: data
     type: ZnMimeType applicationJson setCharSetUTF8).
-	^ self.
 ]
