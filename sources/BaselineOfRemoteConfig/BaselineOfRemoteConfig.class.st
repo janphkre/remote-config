@@ -21,8 +21,6 @@ BaselineOfRemoteConfig >> baseline: spec [
 							repository: 'github://zweidenker/OpenAPI/source' ];
 					project: 'OpenAPI-Core' copyFrom: 'OpenAPI' with: [ 
 						 spec loads: 'Core'].
-
-     spec package: 'SandstoneDb'.
 			
 			spec package: 'RemoteConfig' with:[spec requires: #('ZincHTTPComponents' 'OpenAPI-Core')].
 			spec package: 'RemoteConfig-Tests' with:[spec requires: #('core')].
