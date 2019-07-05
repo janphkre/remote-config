@@ -17,3 +17,12 @@ RemoteConfigServer >> start: port [
 	server debugMode: true.
 	server delegate: serverDelegate.
 ]
+
+{ #category : #accessing }
+RemoteConfigServer >> stop [
+  server ifNil: [ ^ self ].
+  server stop.
+  server := nil.
+  serverDelegate := nil.
+	
+]

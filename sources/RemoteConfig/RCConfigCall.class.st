@@ -28,13 +28,20 @@ RCConfigCall class >> parameterConfigId [
 		description: 'The identifier of the configuration being requested.'
 ]
 
+{ #category : #'accessing-testing' }
+RCConfigCall >> configId: aString. [
+  configId := aString.
+]
+
 { #category : #public }
 RCConfigCall >> get [
-  | data |
+  | data acceptLanguages |
 	configId ifNil: [
 		KeyNotFound signal.
 	].
-  data := ConfigStore instanceFromIdentifier: (configId asSymbol).
+	acceptLanguages := ($, split: (request headers at: 'Accept-Language' ifAbsent: 'en'))
+	  collect: [ :item | ($- split: item) first asSymbol].
+  data := ConfigStore instanceFromIdentifier: (configId asSymbol) languages: acceptLanguages.
 	response := ZnResponse  ok: (ZnEntity 
     with: data
     type: ZnMimeType applicationJson setCharSetUTF8).
