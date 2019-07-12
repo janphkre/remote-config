@@ -1,6 +1,8 @@
 Class {
 	#name : #RCCall,
 	#superclass : #ZnRestCall,
+	#traits : 'CdAuthTrait',
+	#classTraits : 'CdAuthTrait classTrait',
 	#classInstVars : [
 		'basePath'
 	],
@@ -137,42 +139,22 @@ RCCall class >> usedHttpVerbs [
 	^ #( #get #post )
 ]
 
-{ #category : #private }
-RCCall >> errorEntityFor: anRCError [
-	^ ZnEntity 
-		with:(NeoJSONWriter toString: anRCError)
-		type: ZnMimeType applicationJson setCharSetUTF8
-]
-
-{ #category : #private }
-RCCall >> errorResponseFor: aRCError [
-	^ ZnResponse statusLine: (ZnStatusLine code: (aRCError code)).
-]
-
 { #category : #accessing }
 RCCall >> execute [
 	"execution of the api call"
-	^ (self respondsTo: self method)	
+	^ [ self authorize: request.
+		(self respondsTo: self method)	
 		ifTrue: [ 
-			[
 			self perform: self method.
-			response]
-				on: Exception 
-				do: [ :err | self handleError: err ] ] 
+			response ] 
 		ifFalse: [ self wrongMethod: request ]
+		] on: Exception 
+		do: [ :err | self handleError: err ]
 ]
 
-{ #category : #accessing }
+{ #category : #'error handling' }
 RCCall >> handleError: anError [
- | mappedError |
-	mappedError := (RCError instanceFromError: anError).
-	^ (self errorResponseFor: mappedError) 
-		entity: (self errorEntityFor: mappedError)
-		yourself
-]
-
-{ #category : #initialization }
-RCCall >> initializeParameters [
+	^ delegate errorResponse: nil code: (anError znErrorCode) message: (anError znErrorMessage).
 ]
 
 { #category : #accessing }
@@ -186,7 +168,5 @@ RCCall >> jsonRequest [
 
 { #category : #'error handling' }
 RCCall >> wrongMethod: aRequest [
-	^ (ZnResponse statusLine: ZnStatusLine badRequest) 
-		entity: (self errorEntityFor: (RCError instanceFromCode: 400 message: 'Unsupported method used.'))
-		yourself
+	^ delegate errorResponse: aRequest code: 400 message: 'Unsupported method used.'
 ]
