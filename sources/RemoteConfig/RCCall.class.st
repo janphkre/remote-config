@@ -8,8 +8,8 @@ Class {
 }
 
 { #category : #accessing }
-RCCall class >> description [
-	^ ''
+RCCall class >> description: aSymbol [
+^ self perform: (#description, aSymbol)
 ]
 
 { #category : #public }
@@ -91,10 +91,11 @@ RCCall class >> path [
 RCCall class >> pathItem [
 	| item |
 	item := OAPathItem new.
-	self implementedMethods do: [ :method |
+	self implementedMethods do: [ :method | | capitalizedMethod |
+		capitalizedMethod := method capitalized.
 		(item operationAt: method)
-			summary: self summary;
-			description: self description;
+			summary: (self summary: capitalizedMethod);
+			description: (self description: capitalizedMethod);
 			parameters: (self parametersForMethod: method);
 			requestBody: (self requestBodyForMethod: method) ].
 	^ item
@@ -116,6 +117,7 @@ RCCall class >> requestBodyForMethod: aSymbol [
 		ifEmpty: [ ^ nil ].
 	
 	body := OARequestBody new.
+	body required: true.
 	pragmas do: [ :pragma | | mediaObject |
 		mediaObject := pragma method valueWithReceiver: self arguments: #().
 		pragma arguments second do: [ :contentType | 
@@ -126,8 +128,8 @@ RCCall class >> requestBodyForMethod: aSymbol [
 ]
 
 { #category : #accessing }
-RCCall class >> summary [
-	^ ''
+RCCall class >> summary: aSymbol [
+^ self perform: (#summary, aSymbol)
 ]
 
 { #category : #private }

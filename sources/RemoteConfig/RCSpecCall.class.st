@@ -5,13 +5,18 @@ Class {
 }
 
 { #category : #accessing }
+RCSpecCall class >> descriptionGet [
+	^ 'A call to get the OpenAPI specification for this server.'
+]
+
+{ #category : #accessing }
 RCSpecCall class >> function [ 
 	^ '/spec'
 ]
 
 { #category : #accessing }
-RCSpecCall class >> summary [
-	^ 'A call to get the OpenAPI specification for this server.'
+RCSpecCall class >> summaryGet [
+	^ 'Get OpenAPI specification.'
 ]
 
 { #category : #public }

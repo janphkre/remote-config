@@ -8,8 +8,13 @@ Class {
 }
 
 { #category : #accessing }
-RCConfigCall class >> description [ 
-	^ 'A configuration is identified by a user set string and the accept language header. When creating new configurations a json must be supplied containing all supported languages. The language "default" should be supplied as the default language.'
+RCConfigCall class >> descriptionGet [
+	^ 'A configuration is identified by a user set string and the accept language header. When no language is specified or the specified language is not found, the default language is returned.'
+]
+
+{ #category : #accessing }
+RCConfigCall class >> descriptionPost [
+	^ 'A configuration is identified by a user set string and the accept language header. When creating new configurations a json must be supplied containing all supported languages. The language "default" should be supplied as the default language. All other languages should be added to the object as a two character specifier e.g. "en":{...},"de":{...}'
 ]
 
 { #category : #accessing }
@@ -25,8 +30,21 @@ RCConfigCall class >> parameterConfigId [
 ]
 
 { #category : #accessing }
-RCConfigCall class >> summary [ 
-	^ 'Resource for getting and setting configurations as a json.'
+RCConfigCall class >> requestPost [
+	<openApiRequestBody: #( post ) contentType: #( 'application/json' )>
+	^ OAMediaTypeObject new
+		schema: { 
+			#default -> JSONSchemaAnyObject new. } asJSONSchema
+]
+
+{ #category : #accessing }
+RCConfigCall class >> summaryGet [
+	^ 'Get configurations as a json.'
+]
+
+{ #category : #accessing }
+RCConfigCall class >> summaryPost [
+	^ 'Create and change configurations as a json.'
 ]
 
 { #category : #public }
