@@ -26,7 +26,7 @@ BaselineOfRemoteConfig >> baseline: spec [
 			spec package: 'RemoteConfig-Tests' with:[spec requires: #('core')].
 
 			spec
-				group: 'core' with: #('RemoteConfig' 'SandstoneDb');
+				group: 'core' with: #('RemoteConfig');
 				group: 'tests' with: #('RemoteConfig-Tests');
 				group: 'default' with: #('core')
 			]
