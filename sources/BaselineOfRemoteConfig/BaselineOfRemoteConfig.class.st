@@ -21,7 +21,7 @@ BaselineOfRemoteConfig >> baseline: spec [
 							repository: 'github://zweidenker/OpenAPI/source' ];
 					project: 'OpenAPI-Core' copyFrom: 'OpenAPI' with: [ 
 						 spec loads: 'Core'].
-			spec baseline: 'ZincHTTPComponents' with: [
+			spec baseline: 'cadmium' with: [
 						spec
 							loads: #('default');
 							repository: 'github://janphkre/cadmium/src' ].
