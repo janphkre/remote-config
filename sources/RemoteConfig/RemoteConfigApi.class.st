@@ -1,9 +1,6 @@
 Class {
 	#name : #RemoteConfigApi,
 	#superclass : #OpenAPI,
-	#classInstVars : [
-		'basePath'
-	],
 	#category : #RemoteConfig
 }
 
