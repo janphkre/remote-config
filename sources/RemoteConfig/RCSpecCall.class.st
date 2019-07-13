@@ -1,6 +1,8 @@
 Class {
 	#name : #RCSpecCall,
 	#superclass : #RCCall,
+	#traits : 'CdWildcardAuthTrait',
+	#classTraits : 'CdWildcardAuthTrait classTrait',
 	#category : #RemoteConfig
 }
 
@@ -11,7 +13,7 @@ RCSpecCall class >> descriptionGet [
 
 { #category : #accessing }
 RCSpecCall class >> function [ 
-	^ '/spec'
+	^ { 'spec' }
 ]
 
 { #category : #accessing }

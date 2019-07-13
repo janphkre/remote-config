@@ -25,7 +25,7 @@ RemoteConfigApi class >> rootCallClass [
 
 { #category : #versions }
 RemoteConfigApi class >> version: aString [
-	basePath := '/api/', aString
+	basePath :=  { 'api'. aString }
 ]
 
 { #category : #accessing }

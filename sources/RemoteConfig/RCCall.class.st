@@ -1,8 +1,8 @@
 Class {
 	#name : #RCCall,
 	#superclass : #ZnRestCall,
-	#traits : 'CdAuthTrait',
-	#classTraits : 'CdAuthTrait classTrait',
+	#traits : 'CdRejectingAuthTrait + CdTokenStoreTrait',
+	#classTraits : 'CdRejectingAuthTrait classTrait + CdTokenStoreTrait classTrait',
 	#classInstVars : [
 		'basePath'
 	],
@@ -17,8 +17,8 @@ RCCall class >> description: aSymbol [
 { #category : #public }
 RCCall class >> forRequest: request [
 	| callPath requestPath parameters |
-	requestPath := $/ split: request uri path.
-	callPath := $/ split: self path allButFirst.
+	requestPath := request uri segments.
+	callPath := self function.
 	(requestPath size = callPath size) ifFalse: [ 
 		^ nil ].
 	parameters := Dictionary new.
@@ -85,8 +85,13 @@ RCCall class >> parametersForMethod: aSymbol [
 ]
 
 { #category : #accessing }
-RCCall class >> path [ 
-	^ (RemoteConfigApi basePath), self function 
+RCCall class >> path [
+	^ String
+		streamContents: [ :s | 
+			s nextPut: $/.
+			RemoteConfigApi basePath asStringOn: s delimiter: '/'.
+			s nextPut: $/.
+			self function asStringOn: s delimiter: '/' ]
 ]
 
 { #category : #accessing }

@@ -1,6 +1,8 @@
 Class {
 	#name : #RCConfigCall,
 	#superclass : #RCCall,
+	#traits : 'CdTokenAuthTrait',
+	#classTraits : 'CdTokenAuthTrait classTrait',
 	#instVars : [
 		'configId'
 	],
@@ -19,7 +21,7 @@ RCConfigCall class >> descriptionPost [
 
 { #category : #accessing }
 RCConfigCall class >> function [
-	^ '/config/{configId}'
+	^ { 'config' . '{configId}' }
 ]
 
 { #category : #accessing }
@@ -50,9 +52,7 @@ RCConfigCall class >> summaryPost [
 { #category : #public }
 RCConfigCall >> get [
   | data acceptLanguages |
-	configId ifNil: [
-		KeyNotFound signal.
-	].
+	configId ifNil: [ KeyNotFound signal ].
 	acceptLanguages := ($, split: (request headers at: 'Accept-Language' ifAbsent: 'default'))
 	  collect: [ :item | ($- split: item) first].
   data := ConfigStore configFromIdentifier: configId languages: acceptLanguages.
