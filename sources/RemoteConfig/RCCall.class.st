@@ -159,6 +159,7 @@ RCCall >> execute [
 
 { #category : #'error handling' }
 RCCall >> handleError: anError [
+	anError inspect.
 	^ delegate errorResponse: nil code: (anError znErrorCode) message: (anError znErrorMessage).
 ]
 
