@@ -3,10 +3,16 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'serverDelegate',
-		'server'
+		'server',
+		'versionString'
 	],
 	#category : #RemoteConfig
 }
+
+{ #category : #'instance creation' }
+RemoteConfigServer class >> versioned: versionString [
+	^ (self new) version: versionString; yourself.
+]
 
 { #category : #public }
 RemoteConfigServer >> loadTokens [
@@ -16,11 +22,15 @@ RemoteConfigServer >> loadTokens [
 	
 ]
 
+{ #category : #accessing }
+RemoteConfigServer >> localUrl [
+	^ server localUrl
+]
+
 { #category : #public }
 RemoteConfigServer >> start: port [
 	
-	RemoteConfigApi version: 'v1'.
-	serverDelegate := RemoteConfigApi delegate.
+	serverDelegate := RemoteConfigApi delegate: versionString.
 	
 	server := ZnMultiThreadedServer  startDefaultOn: port.
 	server debugMode: true.
@@ -48,4 +58,14 @@ RemoteConfigServer >> storeTokens [
 { #category : #private }
 RemoteConfigServer >> tokensFile [
 	^ 'data/authorization/tokens.json' asFileReference
+]
+
+{ #category : #versions }
+RemoteConfigServer >> version [
+	^ versionString.
+]
+
+{ #category : #versions }
+RemoteConfigServer >> version: aString [
+	versionString := aString.
 ]

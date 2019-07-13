@@ -7,25 +7,15 @@ Class {
 	#category : #RemoteConfig
 }
 
-{ #category : #accessing }
-RemoteConfigApi class >> basePath [
-	^ basePath
-]
-
 { #category : #options }
-RemoteConfigApi class >> delegate [
+RemoteConfigApi class >> delegate: versionString [
 	^ (RemoteConfigServerDelegate new
-			uriSpace: (RcUriSpace new))
+			uriSpace: (RcUriSpace versioned: versionString))
 ]
 
 { #category : #accessing }
 RemoteConfigApi class >> rootCallClass [
 	^ RcCall
-]
-
-{ #category : #versions }
-RemoteConfigApi class >> version: aString [
-	basePath :=  { 'api'. aString }
 ]
 
 { #category : #accessing }
