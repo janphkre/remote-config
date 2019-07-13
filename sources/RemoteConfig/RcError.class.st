@@ -1,5 +1,5 @@
 Class {
-	#name : #RCError,
+	#name : #RcError,
 	#superclass : #Object,
 	#instVars : [
 		'code',
@@ -9,12 +9,12 @@ Class {
 }
 
 { #category : #'instance creation' }
-RCError class >> instanceFromCode: anInteger message: aString [
+RcError class >> instanceFromCode: anInteger message: aString [
 	^ self new code: anInteger; message: aString; yourself.
 ]
 
 { #category : #'instance creation' }
-RCError class >> instanceFromError: anError [
+RcError class >> instanceFromError: anError [
   self flag: 'TODO Find way to log / monitor errors'.
   anError inspect.
   anError class = KeyNotFound ifTrue: [ ^  self instanceFromCode: 404 message: 'The requested object was not found.' ].
@@ -23,28 +23,28 @@ RCError class >> instanceFromError: anError [
 ]
 
 { #category : #accessing }
-RCError class >> neoJsonMapping: mapper [
+RcError class >> neoJsonMapping: mapper [
 	mapper for: self do: [ :mapping |
-		mapping mapInstVars: (RCError instanceVariables) ]
+		mapping mapInstVars: (RcError instanceVariables) ]
 
 ]
 
 { #category : #accessing }
-RCError >> code [ 
+RcError >> code [ 
 	^ code
 ]
 
 { #category : #accessing }
-RCError >> code: anInteger [ 
+RcError >> code: anInteger [ 
 	code := anInteger
 ]
 
 { #category : #accessing }
-RCError >> message [ 
+RcError >> message [ 
 	^ message
 ]
 
 { #category : #accessing }
-RCError >> message: aString [
+RcError >> message: aString [
 	message := aString.
 ]

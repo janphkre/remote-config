@@ -1,28 +1,28 @@
 Class {
-	#name : #RCSpecCall,
-	#superclass : #RCCall,
+	#name : #RcSpecCall,
+	#superclass : #RcCall,
 	#traits : 'CdWildcardAuthTrait',
 	#classTraits : 'CdWildcardAuthTrait classTrait',
 	#category : #RemoteConfig
 }
 
 { #category : #accessing }
-RCSpecCall class >> descriptionGet [
+RcSpecCall class >> descriptionGet [
 	^ 'A call to get the OpenAPI specification for this server.'
 ]
 
 { #category : #accessing }
-RCSpecCall class >> function [ 
+RcSpecCall class >> function [ 
 	^ { 'spec' }
 ]
 
 { #category : #accessing }
-RCSpecCall class >> summaryGet [
+RcSpecCall class >> summaryGet [
 	^ 'Get OpenAPI specification.'
 ]
 
 { #category : #public }
-RCSpecCall >> get [
+RcSpecCall >> get [
 	response := ZnResponse ok:(
 		ZnEntity 
 			with: RemoteConfigApi new specString 

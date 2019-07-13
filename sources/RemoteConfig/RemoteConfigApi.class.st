@@ -15,12 +15,12 @@ RemoteConfigApi class >> basePath [
 { #category : #options }
 RemoteConfigApi class >> delegate [
 	^ (RemoteConfigServerDelegate new
-			uriSpace: (RCUriSpace new))
+			uriSpace: (RcUriSpace new))
 ]
 
 { #category : #accessing }
 RemoteConfigApi class >> rootCallClass [
-	^ RCCall
+	^ RcCall
 ]
 
 { #category : #versions }

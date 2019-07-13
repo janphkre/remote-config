@@ -1,11 +1,11 @@
 Class {
-	#name : #RCUriSpace,
+	#name : #RcUriSpace,
 	#superclass : #ZnRestUriSpace,
 	#category : #RemoteConfig
 }
 
 { #category : #public }
-RCUriSpace >> match: request [
+RcUriSpace >> match: request [
 	|requestSegments baseSegments |
 	requestSegments := request uri segments.
 	baseSegments := RemoteConfigApi basePath.
@@ -15,7 +15,7 @@ RCUriSpace >> match: request [
 	requestSegments removeFirst: (baseSegments size).
 	request uri segments: requestSegments.
 	
-	(RCCall allSubclasses reject: #isAbstract)
+	(RcCall allSubclasses reject: #isAbstract)
 		do: [ :callClass |
 			(callClass forRequest: request) ifNotNil: [ :item |
 				^ item ] ].

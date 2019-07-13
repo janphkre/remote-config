@@ -1,5 +1,5 @@
 Class {
-	#name : #ConfigStore,
+	#name : #RcConfigStore,
 	#superclass : #Object,
 	#classInstVars : [
 		'configurations'
@@ -8,14 +8,14 @@ Class {
 }
 
 { #category : #public }
-ConfigStore class >> addConfigurationsFor: anIdentifier data: aDict [
+RcConfigStore class >> addConfigurationsFor: anIdentifier data: aDict [
 	(self configurationsFolder resolveString: (anIdentifier, '.json')) writeStreamDo: [ :aStream |
 		 (NeoJSONWriter on: aStream) writeMap: aDict. ].
 	self loadConfigurationsFor: anIdentifier data: aDict.
 ]
 
 { #category : #public }
-ConfigStore class >> configFromIdentifier: anIdentifier languages: languageIdentifiers [
+RcConfigStore class >> configFromIdentifier: anIdentifier languages: languageIdentifiers [
 | result |
 	languageIdentifiers do: [ :language |
 		result := configurations at: anIdentifier at: language ifAbsent: nil.
@@ -25,30 +25,30 @@ ConfigStore class >> configFromIdentifier: anIdentifier languages: languageIdent
 ]
 
 { #category : #private }
-ConfigStore class >> configurationsFolder [
-  ^ 'configurations' asFileReference
+RcConfigStore class >> configurationsFolder [
+  ^ 'data/configurations' asFileReference
 ]
 
 { #category : #'class initialization' }
-ConfigStore class >> initialize [
+RcConfigStore class >> initialize [
 	Smalltalk addToStartUpList: self; addToShutDownList: self.
 ]
 
 { #category : #private }
-ConfigStore class >> loadConfigurationsFor: anIdentifier data: aDict [
+RcConfigStore class >> loadConfigurationsFor: anIdentifier data: aDict [
   aDict associations do: [ :pair |
 				configurations at: anIdentifier at: (pair key) put:
 				  (NeoJSONWriter toString: (pair value)) ].
 ]
 
 { #category : #'system startup' }
-ConfigStore class >> shutDown: quitting [
+RcConfigStore class >> shutDown: quitting [
 	quitting ifFalse: [ ^ self ].
 	configurations := nil.
 ]
 
 { #category : #'system startup' }
-ConfigStore class >> startUp: isImageStarting [
+RcConfigStore class >> startUp: isImageStarting [
 	isImageStarting ifFalse: [ ^ self ].
 	configurations := Dictionary new.
 	self configurationsFolder allChildren

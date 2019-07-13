@@ -1,5 +1,5 @@
 Class {
-	#name : #RCCall,
+	#name : #RcCall,
 	#superclass : #ZnRestCall,
 	#traits : 'CdRejectingAuthTrait + CdTokenStoreTrait',
 	#classTraits : 'CdRejectingAuthTrait classTrait + CdTokenStoreTrait classTrait',
@@ -10,12 +10,12 @@ Class {
 }
 
 { #category : #accessing }
-RCCall class >> description: aSymbol [
+RcCall class >> description: aSymbol [
 ^ self perform: (#description, aSymbol)
 ]
 
 { #category : #public }
-RCCall class >> forRequest: request [
+RcCall class >> forRequest: request [
 	| callPath requestPath parameters |
 	requestPath := request uri segments.
 	callPath := self function.
@@ -32,22 +32,22 @@ RCCall class >> forRequest: request [
 ]
 
 { #category : #accessing }
-RCCall class >> function [
+RcCall class >> function [
 	^ self subclassResponsibility 
 ]
 
 { #category : #accessing }
-RCCall class >> implementedMethods [
+RcCall class >> implementedMethods [
 	^ self usedHttpVerbs select: [ :method | self includesSelector: method asSymbol ]
 ]
 
 { #category : #testing }
-RCCall class >> isAbstract [ 
- ^ self = RCCall
+RcCall class >> isAbstract [ 
+ ^ self = RcCall
 ]
 
 { #category : #'instance creation' }
-RCCall class >> new: aDict [
+RcCall class >> new: aDict [
 	| result |
 	result := self new.
 	aDict associations do: [ :pair |
@@ -56,13 +56,13 @@ RCCall class >> new: aDict [
 ]
 
 { #category : #accessing }
-RCCall class >> objectsForPragmas: aCollection [
+RcCall class >> objectsForPragmas: aCollection [
 	^ aCollection
 		collect: [:each | each method valueWithReceiver: self arguments: #() ]
 ]
 
 { #category : #public }
-RCCall class >> openApiPathParameter: aString [
+RcCall class >> openApiPathParameter: aString [
 ^ OAParameter new
 		name: aString;
 		in: #path;
@@ -72,20 +72,20 @@ RCCall class >> openApiPathParameter: aString [
 ]
 
 { #category : #accessing }
-RCCall class >> openApiPragmasNamed: aSymbol [
+RcCall class >> openApiPragmasNamed: aSymbol [
 	^ Pragma 
 		allNamed: aSymbol
 		from: self class 
-		to: RCCall class.
+		to: RcCall class.
 ]
 
 { #category : #accessing }
-RCCall class >> parametersForMethod: aSymbol [
+RcCall class >> parametersForMethod: aSymbol [
 	^ self objectsForPragmas: ( self pragmas: #openApiParameter: includingMethod: aSymbol )
 ]
 
 { #category : #accessing }
-RCCall class >> path [
+RcCall class >> path [
 	^ String
 		streamContents: [ :s | 
 			s nextPut: $/.
@@ -95,7 +95,7 @@ RCCall class >> path [
 ]
 
 { #category : #accessing }
-RCCall class >> pathItem [
+RcCall class >> pathItem [
 	| item |
 	item := OAPathItem new.
 	self implementedMethods do: [ :method | | capitalizedMethod |
@@ -110,14 +110,14 @@ RCCall class >> pathItem [
 ]
 
 { #category : #accessing }
-RCCall class >> pragmas: pragmaName includingMethod: aSymbol [
+RcCall class >> pragmas: pragmaName includingMethod: aSymbol [
 	^ (self openApiPragmasNamed: pragmaName) 
 		select: [ :each | 
 			each arguments first includesAny: { aSymbol . #common } ]
 ]
 
 { #category : #accessing }
-RCCall class >> requestBodyForMethod: aSymbol [
+RcCall class >> requestBodyForMethod: aSymbol [
 
 	| body pragmas |
 	pragmas := (self pragmas: #openApiRequestBody:contentType: includingMethod: aSymbol)
@@ -135,17 +135,22 @@ RCCall class >> requestBodyForMethod: aSymbol [
 ]
 
 { #category : #accessing }
-RCCall class >> summary: aSymbol [
+RcCall class >> summary: aSymbol [
 ^ self perform: (#summary, aSymbol)
 ]
 
+{ #category : #acccessing }
+RcCall class >> tokenDelegate [
+	^ CdTokenStore default.
+]
+
 { #category : #private }
-RCCall class >> usedHttpVerbs [
+RcCall class >> usedHttpVerbs [
 	^ #( #get #post )
 ]
 
 { #category : #accessing }
-RCCall >> execute [
+RcCall >> execute [
 	"execution of the api call"
 	^ [ self authorize: request.
 		(self respondsTo: self method)	
@@ -158,13 +163,13 @@ RCCall >> execute [
 ]
 
 { #category : #'error handling' }
-RCCall >> handleError: anError [
+RcCall >> handleError: anError [
 	anError inspect.
 	^ delegate errorResponse: nil code: (anError znErrorCode) message: (anError znErrorMessage).
 ]
 
 { #category : #accessing }
-RCCall >> jsonRequest [
+RcCall >> jsonRequest [
 	^ (self request contentType matches: ZnMimeType applicationJson)
 		ifTrue: [
 			NeoJSONReader fromString: self request contents ]
@@ -173,6 +178,6 @@ RCCall >> jsonRequest [
 ]
 
 { #category : #'error handling' }
-RCCall >> wrongMethod: aRequest [
+RcCall >> wrongMethod: aRequest [
 	^ delegate errorResponse: aRequest code: 400 message: 'Unsupported method used.'
 ]
