@@ -84,3 +84,43 @@ RcRESTTests >> testGetConfigCallDefault [
 		ifFalse: [ Error signal: 'Content is ', (result contents) ].
 
 ]
+
+{ #category : #tests }
+RcRESTTests >> testPostConfigCall [
+	| data |
+	data := Dictionary new
+		at: 'xyz' put: 'test-xyz-post';
+		at: 'default' put: 'test-default-post';
+		yourself.
+	
+	CdTokenStore default clearPermissions;
+		for: 'test-token-post' grant: {
+			CdPathMethodAccess for: #POST on: RcConfigCall function.
+		};
+		for: 'test-token' grant: {
+			CdPathMethodAccess for: #GET on: RcConfigCall function.
+		}.
+	
+	client request url addPathSegments: #( config 'test-id-post' ).
+	client headerAt: 'Authorization' put: 'test-token-post';
+		entity: (ZnEntity json: (NeoJSONWriter toString: data));
+		post.
+	
+	result := client response.
+	
+	result code = 200
+		ifFalse: [ Error signal: 'Result code is ', (result code asString) ].
+
+	client headerAt: 'Authorization' put: 'test-token';
+		headerAt: 'Accept-Language' put: 'xyz';
+		entity: (ZnEntity json: '{}'); 
+		get.
+	
+	result := client response.
+	
+	result code = 200
+		ifFalse: [ Error signal: 'Result code is ', (result code asString) ].
+	result contents = '"test-xyz-post"'
+		ifFalse: [ Error signal: 'Content is ', (result contents) ].
+
+]
